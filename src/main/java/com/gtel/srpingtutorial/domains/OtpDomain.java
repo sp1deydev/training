@@ -1,6 +1,7 @@
 package com.gtel.srpingtutorial.domains;
 
 import com.gtel.srpingtutorial.exception.ApplicationException;
+import com.gtel.srpingtutorial.model.request.ConfirmOtpRegisterRequest;
 import com.gtel.srpingtutorial.redis.entities.OtpLimitEntity;
 import com.gtel.srpingtutorial.redis.entities.RegisterUserEntity;
 import com.gtel.srpingtutorial.redis.repository.OtpLimitRedisRepository;
@@ -89,6 +90,28 @@ public class OtpDomain {
 
         log.info("[genOtpWhenUserRegister] DONE with phone {}", phoneNumber);
         return registerUserEntity;
+    }
+
+    public RegisterUserEntity genOtpWhenResend(String transactionId, RegisterUserEntity registerUser) {
+        log.info("[genOtpWhenResend] START with transaction id {} and phone {}", transactionId, registerUser.getPhoneNumber());
+
+        // validate otp limit daily
+        OtpLimitEntity otpLimit = this.validateLimitOtpByPhoneNumber(registerUser.getPhoneNumber());
+
+        String otp = genOtp();
+        registerUser.setOtp(otp);
+        registerUser.setOtpFail(0);
+        registerUser.setOtpExpiredTime(System.currentTimeMillis()/ 1000 + 300);
+        registerUser.setOtpResendTime(System.currentTimeMillis()/ 1000 + 60);
+        registerUser.setTtl(900);
+
+        registerUserRedisRepository.save(registerUser);
+
+        otpLimit.setDailyOtpCounter(otpLimit.getDailyOtpCounter() + 1);
+        otpLimitRedisRepository.save(otpLimit);
+
+        log.info("[genOtpWhenResend] DONE with transaction id {} and phone {}", transactionId, registerUser.getPhoneNumber());
+        return registerUser;
     }
 
     protected String genOtp(){
