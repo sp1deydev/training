@@ -70,6 +70,12 @@ public class UserService  extends BaseService{
             throw new ApplicationException(ERROR_CODE.INVALID_REQUEST, "Transaction is not exists");
         }
 
+        long currentTime = System.currentTimeMillis() / 1000;
+        if (currentTime < registerUser.get().getOtpResendTime()) {
+            log.info("[resendOTP] request fail: resend too early for transaction id {}", transactionId);
+            throw new ApplicationException(ERROR_CODE.INVALID_REQUEST, "Resend OTP too early. Please wait.");
+        }
+
         //gen otp
         RegisterUserEntity otpEntity = otpDomain.genOtpWhenResend(transactionId, registerUser.get());
 
