@@ -21,14 +21,14 @@ public class UserController {
     }
 
     @PutMapping("/resend-otp/{transactionId}")
-    public RegisterResponse resendOtp(@PathVariable("transactionId") String transactionId) {
-        return null;
+    public RegisterResponse resendOtp(@PathVariable("transactionId") String transactionId) throws ApplicationException {
+        return userService.resendOTP(transactionId);
     }
 
     // 3. verify otp
-
+    @PostMapping("/confirm-otp")
     public void confirmRegisterOtp(@RequestBody ConfirmOtpRegisterRequest request){
-        return;
+        userService.confirmOtpRegister(request);
     }
 
 }

@@ -16,25 +16,31 @@ public class PhoneNumberUtils {
         //0982573860
         //84982573860
 
-        if (phoneNumber.length() < 10 || phoneNumber.length() > 13) {
+        if (phoneNumber.length() < 10 || phoneNumber.length() > 12) {
             throw new ApplicationException(ERROR_CODE.INVALID_PARAMETER , "phoneNumber is invalid");
         }
-        // check prefix
-        if (!phoneNumber.startsWith("0") && !phoneNumber.startsWith("+84") && !phoneNumber.startsWith("84")) {
-            throw new ApplicationException(ERROR_CODE.INVALID_PARAMETER , "phoneNumber is invalid");
-        }
-        if (phoneNumber.startsWith("84")) {
-            return  phoneNumber;
+
+        if (!phoneNumber.matches("^\\+?\\d+$")) {
+            throw new ApplicationException(ERROR_CODE.INVALID_PARAMETER, "phoneNumber is invalid");
         }
 
-        if (phoneNumber.startsWith("0")) {
-            return  "84" + phoneNumber.substring(1);
+        if(phoneNumber.length() == 10) {
+            if (!phoneNumber.startsWith("0")) {
+                throw new ApplicationException(ERROR_CODE.INVALID_PARAMETER , "phoneNumber is invalid");
+            }
+                return  "84" + phoneNumber.substring(1);
         }
 
-        if (phoneNumber.startsWith("+84")) {
+        if(phoneNumber.length() == 12) {
+            if(!phoneNumber.startsWith("+84")) {
+                throw new ApplicationException(ERROR_CODE.INVALID_PARAMETER , "phoneNumber is invalid");
+            }
             return phoneNumber.substring(1);
         }
 
+        if(!phoneNumber.startsWith("84")) {
+            throw new ApplicationException(ERROR_CODE.INVALID_PARAMETER , "phoneNumber is invalid");
+        }
         return phoneNumber;
 
     }
