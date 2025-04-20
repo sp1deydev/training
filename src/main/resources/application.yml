@@ -40,3 +40,6 @@ server:
 logging:
   level:
     com.gtel: debug
+
+jwt:
+  secretkey: 123321asdf123321asdf123321asdfgythhh
