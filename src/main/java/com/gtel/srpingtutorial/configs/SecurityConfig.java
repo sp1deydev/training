@@ -5,6 +5,7 @@ import com.gtel.srpingtutorial.domains.JwtDomain;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -29,6 +30,11 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
+    private final String[] PUBLIC_POST_ENDPOINTS = {
+            "/v1/auth/login",
+            "/v1/auth/refresh-token",
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -40,6 +46,10 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/auth/welcome", "/auth/generateToken")
                         .permitAll()
+
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS)
+                        .permitAll()
+
 
 //                        // Role-based endpoints
 //                        .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")

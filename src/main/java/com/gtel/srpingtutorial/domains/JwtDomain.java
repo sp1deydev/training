@@ -45,6 +45,14 @@ public class JwtDomain {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+    public String genRefreshToken(String username){
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(Date.from(Instant.now().plus(5, ChronoUnit.DAYS)))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
