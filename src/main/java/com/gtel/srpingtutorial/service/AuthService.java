@@ -58,9 +58,11 @@ public class AuthService {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         if (userDetails == null) {
+            log.info("[refreshToken] - refresh token with token {} ERROR User Not Found", refreshToken);
             throw new ApplicationException(ERROR_CODE.INVALID_PARAMETER, "User not found");
         }
         if(!jwtDomain.validateToken(refreshToken, userDetails)) {
+            log.info("[refreshToken] - refresh token with token {} ERROR Invalid Token", refreshToken);
             throw new ApplicationException(ERROR_CODE.INVALID_PARAMETER, "Refresh token is invalid");
         }
         String newAccessToken = jwtDomain.genJwt(username);
