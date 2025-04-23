@@ -31,7 +31,7 @@ spring:
         default_schema: gtel
   data:
     redis:
-      host: localhost
+      host: 103.70.12.113
       port: 6379
 server:
   port: 8088
@@ -40,6 +40,7 @@ server:
 logging:
   level:
     com.gtel: debug
-
+token:
+  impl: 1
 jwt:
   secretkey: 123321asdf123321asdf123321asdfgythhh

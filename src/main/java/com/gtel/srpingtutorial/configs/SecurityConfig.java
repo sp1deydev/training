@@ -1,22 +1,22 @@
 package com.gtel.srpingtutorial.configs;
 
 import com.gtel.srpingtutorial.domains.JwtAuthFilter;
-import com.gtel.srpingtutorial.domains.JwtDomain;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,64 +27,37 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(8);
     }
     private final JwtAuthFilter jwtAuthFilter;
-    private final UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                // Disable CSRF (not needed for stateless JWT)
-                .csrf(csrf -> csrf.disable())
 
-                // Configure endpoint authorization
+        List<String> publicApis = new ArrayList<>();
+        publicApis.add("/actuator/**");
+        publicApis.add("/css/**");
+        publicApis.add("/favicon.ico");
+        publicApis.add("/v1/login");
+        publicApis.add("/api/v1/login");
+        publicApis.add("/js/**");
+        publicApis.add("/images/**");
+        String[] array = new String[publicApis.size()];
+        publicApis.toArray(array);
+        return http
+                // enable csrf protection with cookie
+                .csrf(AbstractHttpConfigurer::disable)
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // use stateless session management
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
+                .requestCache(AbstractHttpConfigurer::disable)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/auth/welcome", "/auth/generateToken")
-                        .permitAll()
-
-//                        // Role-based endpoints
-//                        .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
-//                        .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
-
-                        // All other endpoints require authentication
-                        .anyRequest().authenticated()
-                )
-
-                // Stateless session (required for JWT)
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Set custom authentication provider
-                .authenticationProvider(authenticationProvider())
-
-                // Add JWT filter before Spring Security's default filter
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
-
-    /*
-     * Password encoder bean (uses BCrypt hashing)
-     * Critical for secure password storage
-     */
-
-
-    /*
-     * Authentication provider configuration
-     * Links UserDetailsService and PasswordEncoder
-     */
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    /*
-     * Authentication manager bean
-     * Required for programmatic authentication (e.g., in /generateToken)
-     */
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+                        // accept all requests to static resources
+                        .requestMatchers(array).permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                        // require authentication for all other requests
+                        .anyRequest()
+                        .authenticated()
+                ).build();
     }
 }

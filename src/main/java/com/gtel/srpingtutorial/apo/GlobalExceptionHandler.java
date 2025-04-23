@@ -22,8 +22,6 @@ public class GlobalExceptionHandler {
     protected final HttpServletRequest httpServletRequest;
 
 
-
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception ex) {
         log.error("ERROR: ", ex);
@@ -40,6 +38,6 @@ public class GlobalExceptionHandler {
 
         responseData.setRequestId(traceId);
 
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(responseData, ex.getHttpStatus() != null ? ex.getHttpStatus() : HttpStatus.BAD_REQUEST);
     }
 }

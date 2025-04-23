@@ -37,4 +37,9 @@ public class UserInfoDetails implements UserDetails {
         this.password = entity.getPassword();
         this.authorities = List.of();
     }
+
+    public UserInfoDetails(String username){
+        this.username = username;
+        this.authorities = List.of();
+    }
 }

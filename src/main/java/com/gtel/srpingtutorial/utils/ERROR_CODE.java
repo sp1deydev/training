@@ -18,7 +18,9 @@ public enum ERROR_CODE {
     INVALID_REQUEST("ER_400", "Invalid Request"),
     INVALID_PARAMETER("ER_401", "Invalid parameter"),
     RESOURCE_NOT_FOUND("ER_404", "Resource Not Found"),
-    INTERNAL_SERVER_ERROR("ER_500", "Internal Server Error");
+    INTERNAL_SERVER_ERROR("ER_500", "Internal Server Error"),
+    USER_NOT_FOUND_OR_PASSWORD_NOT_MATCH("ER401", "USER_NOT_FOUND_OR_PASSWORD_NOT_MATCH"),;
+
 
     private final String errorCode;
     private final String message;

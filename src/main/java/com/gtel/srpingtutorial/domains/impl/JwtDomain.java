@@ -1,6 +1,8 @@
-package com.gtel.srpingtutorial.domains;
+package com.gtel.srpingtutorial.domains.impl;
 
 
+import com.gtel.srpingtutorial.domains.TokenDomain;
+import com.gtel.srpingtutorial.exception.ApplicationException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,9 +20,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.function.Function;
 
-@Component
+@Component()
 @Slf4j
-public class JwtDomain {
+public class JwtDomain implements TokenDomain {
 
     @Value("${jwt.secretkey}")
     private String jwtSecret;
@@ -36,8 +38,8 @@ public class JwtDomain {
 //        Jwts.builder().signWith(SignatureAlgorithm.HS512, key).compact();
     }
 
-
-    public String genJwt(String username){
+    @Override
+    public String genToken(String username){
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
@@ -45,11 +47,29 @@ public class JwtDomain {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
-    public String extractUsername(String token) {
+
+    @Override
+    public String validateToken(String token) throws ApplicationException {
+        return this.extractUsername(token);
+    }
+
+    @Override
+    public void extendTimeToLiveToken(String token, int timeToLivePlus) {
+
+        // gen token new and return
+
+    }
+
+    @Override
+    public void deleteAllTokenByUsername(String username) {
+
+    }
+
+    private String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public Date extractExpiration(String token) {
+    private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
@@ -70,7 +90,7 @@ public class JwtDomain {
         return extractExpiration(token).before(new Date());
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    private Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
