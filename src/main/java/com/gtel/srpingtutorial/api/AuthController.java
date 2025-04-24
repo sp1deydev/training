@@ -24,7 +24,7 @@ public class AuthController {
         return authService.login(request);
     }
 
-    @PostMapping("refresh-token")
+    @PostMapping("/refresh-token")
     public LoginResponse refreshToken(@RequestBody String refreshToken) {
         return authService.refreshToken(refreshToken);
     }

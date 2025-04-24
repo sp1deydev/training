@@ -30,6 +30,7 @@ public class AuthService {
         }
 
         log.info("[login] - login with phone number and password START");
+        //use Optional
         UserEntity user = userRepository.findByPhoneNumber(request.getUsername());
         if (user == null) {
             log.info("[login] - login ERROR with user not found");
