@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -177,6 +178,7 @@ public class AirportService extends BaseService {
 
 
     @Transactional(noRollbackForClassName = {"App"})
+//    @PreAuthorize("hasRole('ADMIN')")
     public void createAirport(AirportRequest airportRequest) throws ApplicationException {
         log.info("createAirport with id  {} - name {} " , airportRequest.getIata() , airportRequest.getName());
 
