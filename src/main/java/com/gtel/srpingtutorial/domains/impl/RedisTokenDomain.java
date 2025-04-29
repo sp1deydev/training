@@ -5,6 +5,7 @@ import com.gtel.srpingtutorial.exception.ApplicationException;
 import com.gtel.srpingtutorial.redis.entities.LoginRedisEntity;
 import com.gtel.srpingtutorial.redis.repository.LoginRedisRepository;
 import com.gtel.srpingtutorial.utils.ERROR_CODE;
+import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 @AllArgsConstructor
 @Component
@@ -21,7 +23,7 @@ public class RedisTokenDomain implements TokenDomain {
 
     private final LoginRedisRepository loginRedisRepository;
     @Override
-    public String genToken(String username) {
+    public String genToken(String username, List<String> role) {
 
         String token = UUID.randomUUID().toString();
 
@@ -78,5 +80,10 @@ public class RedisTokenDomain implements TokenDomain {
 
         if (!CollectionUtils.isEmpty(redisEntities))
             loginRedisRepository.deleteAll(redisEntities);
+    }
+
+    @Override
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        return null;
     }
 }

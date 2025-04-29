@@ -18,6 +18,7 @@ import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 @Component()
@@ -34,15 +35,15 @@ public class JwtDomain implements TokenDomain {
         byte[] keyBytes = this.jwtSecret.getBytes(StandardCharsets.UTF_8);
 
         key = Keys.hmacShaKeyFor(keyBytes);
-
 //        Jwts.builder().signWith(SignatureAlgorithm.HS512, key).compact();
     }
 
     @Override
-    public String genToken(String username){
+    public String genToken(String username, List<String> role){
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
+                .claim("roles", role)
                 .setExpiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();

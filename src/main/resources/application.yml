@@ -41,6 +41,6 @@ logging:
   level:
     com.gtel: debug
 token:
-  impl: 1
+  impl: 2
 jwt:
   secretkey: 123321asdf123321asdf123321asdfgythhh

@@ -28,8 +28,26 @@ public class SecurityConfig {
     }
     private final JwtAuthFilter jwtAuthFilter;
 
+    public static final String[] ADMIN_POST_ENDPOINTS = {
+            "/v1/airports",
+    };
+    public static final String[] ADMIN_PUT_ENDPOINTS = {
+            "/v1/airports/{iata}",
+    };
+    public static final String[] ADMIN_DELETE_ENDPOINTS = {
+            "/v1/airports/{iata}",
+    };
+    public static final String[] ADMIN_PATCH_ENDPOINTS = {
+            "/v1/airports/{iata}",
+    };
+    public static final String[] USER_ENDPOINTS = {
+            "/v1/airports",
+            "/v1/airports/{iata}"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
 
         List<String> publicApis = new ArrayList<>();
         publicApis.add("/actuator/**");
@@ -52,6 +70,17 @@ public class SecurityConfig {
                 .requestCache(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+
+                        //USER ROLE
+                        .requestMatchers(HttpMethod.GET, USER_ENDPOINTS).hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.HEAD, USER_ENDPOINTS).hasAnyRole("ADMIN", "USER")
+
+                        //ADMIN ROLE
+                        .requestMatchers(HttpMethod.POST, ADMIN_POST_ENDPOINTS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, ADMIN_PUT_ENDPOINTS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, ADMIN_PATCH_ENDPOINTS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, ADMIN_DELETE_ENDPOINTS).hasRole("ADMIN")
+
                         // accept all requests to static resources
                         .requestMatchers(array).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()

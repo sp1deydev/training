@@ -2,6 +2,7 @@ package com.gtel.srpingtutorial.service;
 
 import com.gtel.srpingtutorial.domains.TokenDomain;
 import com.gtel.srpingtutorial.domains.UserDomain;
+import com.gtel.srpingtutorial.entity.RoleEntity;
 import com.gtel.srpingtutorial.entity.UserEntity;
 import com.gtel.srpingtutorial.exception.ApplicationException;
 import com.gtel.srpingtutorial.model.request.LoginRequest;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -72,8 +75,10 @@ public class AuthenticationService extends BaseService {
 
 
         TokenDomain tokenDomain = domainFactory.tokenFactory();
-
-        String token = tokenDomain.genToken(userEntity.getPhoneNumber());
+        List<String> roleNames = userEntity.getRoles().stream()
+                .map(RoleEntity::getRoleName)
+                .toList();
+        String token = tokenDomain.genToken(userEntity.getPhoneNumber(), roleNames);
 
         LoginResponse response  = new LoginResponse();
 
